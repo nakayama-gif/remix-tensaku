@@ -1,0 +1,101 @@
+{
+ "no": "12",
+ "ban": "2",
+ "title": "受け入れられない余命宣告",
+ "duration": 10.46,
+ "shots": [
+  {
+   "shot": 1,
+   "start": 0.0,
+   "end": 0.78,
+   "texts": [
+    {
+     "start": 0.0,
+     "end": 0.78,
+     "text": "あなたの余命は"
+    }
+   ]
+  },
+  {
+   "shot": 2,
+   "start": 0.78,
+   "end": 3.3,
+   "texts": [
+    {
+     "start": 0.78,
+     "end": 3.3,
+     "text": "あと4000年あります"
+    }
+   ]
+  },
+  {
+   "shot": 3,
+   "start": 3.3,
+   "end": 5.06,
+   "texts": [
+    {
+     "start": 3.62,
+     "end": 4.26,
+     "text": "えっ!?"
+    },
+    {
+     "start": 4.28,
+     "end": 5.06,
+     "text": "僕どうしたらいいんですか!?"
+    }
+   ]
+  },
+  {
+   "shot": 4,
+   "start": 5.06,
+   "end": 5.88,
+   "texts": [
+    {
+     "start": 5.06,
+     "end": 5.86,
+     "text": "生きて下さい"
+    }
+   ]
+  },
+  {
+   "shot": 5,
+   "start": 5.88,
+   "end": 7.95,
+   "texts": [
+    {
+     "start": 5.88,
+     "end": 7.95,
+     "text": "ですが老いるスピードは周りと同じです"
+    }
+   ]
+  },
+  {
+   "shot": 6,
+   "start": 7.95,
+   "end": 9.1,
+   "texts": [
+    {
+     "start": 7.95,
+     "end": 9.1,
+     "text": "じゃあ人生のほとんどが"
+    }
+   ]
+  },
+  {
+   "shot": 7,
+   "start": 9.1,
+   "end": 10.46,
+   "texts": [
+    {
+     "start": 9.1,
+     "end": 10.46,
+     "text": "じじいですか!?"
+    }
+   ]
+  }
+ ],
+ "srcUrl": "https://www.youtube.com/shorts/bZob1mPhs4c",
+ "srcTitle": "受け入れられない余命宣告（千年ぶりのYouTube）",
+ "driveId": "",
+ "file": "12_v2.mp4"
+}

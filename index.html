@@ -197,7 +197,8 @@ $('save').onclick = async () => {
   $('vtitle').textContent = V.title || '';
   document.title = `№${V.no} v${V.ban} リミックス 添削ツール`;
   if (V.srcUrl) $('links').innerHTML = `<a href="${esc(V.srcUrl)}" target="_blank" rel="noopener">元ネタを YouTube で見る ↗</a>`;
-  v.src = `https://drive.usercontent.google.com/download?id=${encodeURIComponent(V.driveId)}&export=download`;
+  // 動画はページと同じ場所の videos/〔動画〕.mp4 を使う（無ければドライブから。ドライブは一部のブラウザで読み込みが止まった・2026-10-13）
+  v.src = V.file ? `videos/${encodeURIComponent(V.file)}` : `https://drive.usercontent.google.com/download?id=${encodeURIComponent(V.driveId)}&export=download`;
   $('name').value = store.get('remix-tensaku-name');
   $('state').hidden = true; $('app').hidden = false;
   renderNow(); loadComments();

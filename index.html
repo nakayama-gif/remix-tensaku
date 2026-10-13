@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>リミックス 添削ツール</title>
+<style>
+/* スマホで縦に積む：上に動画（9:16）、下にいまの場面・コメント欄・コメント一覧。広い画面では右に並べる */
+:root {
+  --bg: #f1f2f5; --panel: #ffffff; --line: #e1e4ea; --ink: #1b1e26; --sub: #646b78;
+  --accent: #f0561d; --accent-ink: #ffffff; --reply: #eaf1ff; --reply-line: #2f62d8; --stage: #101217; --soft: #f6f7f9; --danger: #c62828;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #121418; --panel: #1b1e24; --line: #2c3039; --ink: #eceef2; --sub: #9aa1ad;
+  --accent: #ff6a33; --reply: #1d2a44; --reply-line: #6c97ff; --stage: #050608; --soft: #22262d; color-scheme: dark } }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Meiryo", system-ui, sans-serif; font-size: 15px;
+  padding: env(safe-area-inset-top, 0px) 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-block: 12px; }
+header h1 { font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px; }
+header h1 i { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); display: inline-block; }
+.chip { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); color: var(--sub); }
+.chip.ban { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.vtitle { font-size: 13px; color: var(--sub); margin: -4px 0 8px; }
+.links { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; margin-bottom: 10px; }
+.links a { color: var(--reply-line); }
+main { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { main { grid-template-columns: minmax(0, 1fr) 380px; } }
+.left, .right { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.stage { background: var(--stage); border-radius: 12px; padding: 10px; display: flex; justify-content: center; }
+.stage video { display: block; height: min(62vh, 640px); max-width: 100%; aspect-ratio: 9 / 16; background: #000; border-radius: 8px; object-fit: contain; }
+.track { position: relative; height: 30px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; touch-action: none; cursor: pointer; }
+.track .shot { position: absolute; top: 0; bottom: 0; border-right: 1px solid var(--line); }
+.track .shot:nth-child(odd) { background: var(--soft); }
+.track .pin { position: absolute; top: 5px; width: 8px; height: 18px; margin-left: -4px; border-radius: 4px; background: var(--accent); }
+.track .head { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); pointer-events: none; }
+.bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.bar button { font: inherit; font-size: 14px; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+.bar button.play { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; min-width: 92px; }
+.bar .time { font-variant-numeric: tabular-nums; color: var(--sub); font-size: 13px; }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.now .scene { font-weight: 700; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.now .scene .t { color: var(--accent); font-variant-numeric: tabular-nums; }
+.now .scene .r { color: var(--sub); font-size: 12px; font-weight: 400; }
+.now .b { font-size: 14px; margin-top: 6px; padding: 6px 8px; background: var(--soft); border-radius: 6px; }
+label { display: block; font-size: 12px; color: var(--sub); margin: 0 0 6px; }
+input[type=text], textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); }
+textarea { min-height: 84px; resize: vertical; }
+input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+.field + .field { margin-top: 10px; }
+.send { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+.send button { font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 8px; border: none; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+.send button:disabled { opacity: .5; cursor: default; }
+.msg { font-size: 13px; color: var(--sub); }
+.msg.err { color: var(--danger); }
+.hint { font-size: 12px; color: var(--sub); margin-top: 6px; }
+.list h2 { font-size: 14px; margin: 0 0 4px; display: flex; justify-content: space-between; align-items: center; }
+.list h2 button { font: inherit; font-size: 12px; font-weight: 400; border: 1px solid var(--line); background: var(--panel); color: var(--sub); border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+.c { padding: 10px 0; border-top: 1px solid var(--line); cursor: pointer; }
+.c .meta { font-size: 12px; color: var(--sub); display: flex; flex-wrap: wrap; gap: 8px; }
+.c .meta .t { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+.c .body { margin-top: 3px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.c .reply { margin-top: 6px; padding: 6px 8px; background: var(--reply); border-left: 3px solid var(--reply-line); border-radius: 4px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.c .reply b { color: var(--reply-line); }
+.c.empty { color: var(--sub); cursor: default; }
+.state { padding: 24px 0; color: var(--sub); }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--reply-line); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><i></i>リミックス 添削ツール</h1>
+  <span class="chip" id="no" hidden></span><span class="chip ban" id="ban" hidden></span>
+</header>
+<div class="vtitle" id="vtitle"></div>
+<div class="links" id="links"></div>
+<div id="state" class="state">読み込んでいます…</div>
+
+<main id="app" hidden>
+  <div class="left">
+    <div class="stage"><video id="v" controls playsinline preload="metadata"></video></div>
+    <div class="track" id="track" title="ショットの区切り。オレンジはコメントのある所。押すとそこへ飛びます"><div class="head" id="head"></div></div>
+    <div class="bar">
+      <button class="play" id="play">▶ 再生</button>
+      <button id="back">−1秒</button><button id="fwd">＋1秒</button>
+      <button id="prevShot">前のショット</button><button id="nextShot">次のショット</button>
+      <span class="time" id="time"></span>
+    </div>
+  </div>
+  <div class="right">
+    <div class="box now" id="now"></div>
+    <div class="box">
+      <div class="field"><label for="name">お名前</label><input type="text" id="name" maxlength="40" placeholder="例：山田"></div>
+      <div class="field"><label for="in">止めた所へのコメント</label><textarea id="in" maxlength="2000" placeholder="例：ここの字幕が顔にかかっています"></textarea></div>
+      <div class="send"><button id="save">この秒に保存</button><span class="msg" id="msg"></span></div>
+      <div class="hint">動画を止めると、その秒にコメントが付きます。保存したコメントは AI が読んで直し、コメントの下に返事を書きます。</div>
+    </div>
+    <div class="box list"><h2><span id="listTitle">コメント</span><button id="reload">返事を読み込む</button></h2><div id="cs"></div></div>
+  </div>
+</main>
+
+<script>
+// コメントの受け口（Google Apps Script のウェブアプリ）。公開したら URL をここに入れる。
+const API = '';
+const $ = id => document.getElementById(id);
+const v = $('v'), inp = $('in');
+let V = null, KEY = '', comments = [];
+const fmt = t => { t = Math.max(0, t || 0); const m = Math.floor(t / 60); return `${m}:${(t % 60).toFixed(1).padStart(4, '0')}`; };
+const esc = x => String(x ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const shotAt = t => { let r = V.shots[0]; for (const x of V.shots) { if (x.start <= t + 0.001) r = x; else break; } return r; };
+const shown = (sh, t) => sh.texts.filter(b => b.start <= t + 0.001 && t < b.end + 0.001);
+const dur = () => v.duration || V?.duration || 0;
+const store = { get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set(k, x) { try { localStorage.setItem(k, x); } catch (e) {} } };
+
+v.addEventListener('play', () => { $('play').textContent = '❚❚ 止める'; });
+v.addEventListener('pause', () => { $('play').textContent = '▶ 再生'; });
+v.addEventListener('seeked', renderNow);
+v.addEventListener('timeupdate', renderNow);
+v.addEventListener('loadedmetadata', () => { renderTrack(); renderNow(); });
+v.addEventListener('error', () => { $('msg').textContent = '動画を読み込めませんでした。ページを開き直してください'; $('msg').className = 'msg err'; });
+
+function renderNow() {
+  if (!V) return;
+  const t = v.currentTime, sh = shotAt(t), bs = shown(sh, t);
+  $('now').innerHTML = `<div class="scene">ショット ${sh.shot}<span class="t">${fmt(t)}</span><span class="r">このショット ${fmt(sh.start)}〜${fmt(sh.end)}</span></div>` +
+    (bs.length ? bs : sh.texts).map(b => `<div class="b">${esc(b.text)}</div>`).join('');
+  $('time').textContent = `${fmt(t)} / ${fmt(dur())}`;
+  if (dur()) $('head').style.left = (t / dur() * 100) + '%';
+}
+function renderTrack() {
+  const tr = $('track'), d = dur();
+  tr.querySelectorAll('.shot,.pin').forEach(x => x.remove());
+  if (!V || !d) return;
+  V.shots.forEach(sh => { const e = document.createElement('div'); e.className = 'shot'; e.style.left = (sh.start / d * 100) + '%'; e.style.width = ((sh.end - sh.start) / d * 100) + '%'; tr.insertBefore(e, $('head')); });
+  comments.forEach(c => { const e = document.createElement('div'); e.className = 'pin'; e.style.left = (c.time / d * 100) + '%'; tr.appendChild(e); });
+}
+function renderList() {
+  $('listTitle').textContent = `コメント ${comments.length}件`;
+  $('cs').innerHTML = comments.length ? comments.map(c => `
+    <div class="c" data-t="${c.time}">
+      <div class="meta"><span class="t">${fmt(c.time)}</span><span>ショット ${esc(c.shot)}</span>${c.name ? `<span>${esc(c.name)}</span>` : ''}<span>${esc(c.texts)}</span></div>
+      <div class="body">${esc(c.comment)}</div>
+      ${c.reply ? `<div class="reply"><b>AIの返事：</b>${esc(c.reply)}</div>` : ''}
+    </div>`).join('') : '<div class="c empty">まだコメントはありません。動画を止めて、上の欄に書いてください。</div>';
+  renderTrack();
+}
+
+async function loadComments() {
+  if (!API) { $('cs').innerHTML = '<div class="c empty">コメントの受け口がまだつながっていません。</div>'; return; }
+  try {
+    const r = await (await fetch(`${API}?video=${encodeURIComponent(KEY)}`)).json();
+    if (r.ok) { comments = r.comments; renderList(); }
+  } catch (e) { $('cs').innerHTML = '<div class="c empty">コメントを読めませんでした。電波を確かめて「返事を読み込む」を押してください。</div>'; }
+}
+
+$('track').addEventListener('pointerdown', e => {
+  const d = dur(); if (!d) return;
+  const r = e.currentTarget.getBoundingClientRect(); v.pause(); v.currentTime = Math.min(d, Math.max(0, (e.clientX - r.left) / r.width * d));
+});
+$('play').onclick = () => v.paused ? v.play() : v.pause();
+$('back').onclick = () => { v.currentTime = Math.max(0, v.currentTime - 1); };
+$('fwd').onclick = () => { v.currentTime = Math.min(dur(), v.currentTime + 1); };
+const jumpShot = dir => { const i = V.shots.indexOf(shotAt(v.currentTime)); v.pause(); v.currentTime = V.shots[Math.min(V.shots.length - 1, Math.max(0, i + dir))].start + 0.01; };
+$('prevShot').onclick = () => jumpShot(-1); $('nextShot').onclick = () => jumpShot(1);
+$('reload').onclick = loadComments;
+$('cs').addEventListener('click', e => { const c = e.target.closest('.c'); if (!c || !c.dataset.t) return; v.pause(); v.currentTime = +c.dataset.t; window.scrollTo({ top: 0, behavior: 'smooth' }); });
+$('name').addEventListener('change', () => store.set('remix-tensaku-name', $('name').value.trim()));
+
+$('save').onclick = async () => {
+  const text = inp.value.trim(); if (!text || !V) return;
+  if (!API) { $('msg').textContent = 'コメントの受け口がまだつながっていません'; $('msg').className = 'msg err'; return; }
+  v.pause();
+  const t = +v.currentTime.toFixed(2), sh = shotAt(t), bs = shown(sh, t), name = $('name').value.trim();
+  store.set('remix-tensaku-name', name);
+  $('save').disabled = true; $('msg').className = 'msg'; $('msg').textContent = '保存しています…';
+  try {
+    const r = await (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ video: KEY, time: t, shot: sh.shot, texts: bs.map(b => b.text).join(' / '), comment: text, name }) })).json();
+    if (!r.ok) throw new Error(r.error || '');
+    comments = r.comments; renderList();
+    inp.value = ''; $('msg').textContent = `保存しました（${fmt(t)}・ショット${sh.shot}）`;
+  } catch (e) {
+    $('msg').className = 'msg err'; $('msg').textContent = '保存できませんでした。電波を確かめて、もう一度押してください';
+  }
+  $('save').disabled = false;
+};
+
+(async () => {
+  KEY = new URLSearchParams(location.search).get('v') || '';
+  if (!/^[0-9A-Za-z_-]{1,40}$/.test(KEY)) { $('state').textContent = 'リンクに動画の番号がありません。送られてきたリンクをそのまま開いてください。'; return; }
+  try { V = await (await fetch(`videos/${KEY}.json`, { cache: 'no-store' })).json(); }
+  catch (e) { $('state').textContent = 'この動画は見つかりませんでした。新しいリンクが届いていないか確かめてください。'; return; }
+  $('no').textContent = `№${V.no}`; $('ban').textContent = `v${V.ban}`; $('no').hidden = $('ban').hidden = false;
+  $('vtitle').textContent = V.title || '';
+  document.title = `№${V.no} v${V.ban} リミックス 添削ツール`;
+  if (V.srcUrl) $('links').innerHTML = `<a href="${esc(V.srcUrl)}" target="_blank" rel="noopener">元ネタを YouTube で見る ↗</a>`;
+  v.src = `https://drive.usercontent.google.com/download?id=${encodeURIComponent(V.driveId)}&export=download`;
+  $('name').value = store.get('remix-tensaku-name');
+  $('state').hidden = true; $('app').hidden = false;
+  renderNow(); loadComments();
+})();
+</script>
+</body>
+</html>

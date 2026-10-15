@@ -1,0 +1,18 @@
+{
+ "no": "30",
+ "ban": "1",
+ "title": "客への怒りをあおって応援する料理長",
+ "duration": 10.4,
+ "srcUrl": "https://www.youtube.com/watch?v=JBJSibS10Y8",
+ "srcTitle": "忙しすぎて気が立っている厨房",
+ "driveId": "",
+ "file": "30_v1.mp4",
+ "shots": [
+  {
+   "shot": 1,
+   "start": 0.0,
+   "end": 10.4,
+   "texts": []
+  }
+ ]
+}

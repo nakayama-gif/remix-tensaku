@@ -1,0 +1,179 @@
+{
+ "no": "33",
+ "ban": "1",
+ "title": "テスト33",
+ "duration": 12.19,
+ "srcUrl": "https://www.youtube.com/watch?v=ldDQkuQqaUE",
+ "srcTitle": "これから何かが始まりそうな聴力検査",
+ "driveId": "",
+ "file": "33_v1.mp4",
+ "shots": [
+  {
+   "shot": 1,
+   "start": 0.0,
+   "end": 1.2,
+   "texts": [
+    {
+     "start": 0.0,
+     "end": 0.42,
+     "text": "音聞こえたら"
+    },
+    {
+     "start": 0.42,
+     "end": 1.2,
+     "text": "ボタン押して\nくださいね"
+    }
+   ]
+  },
+  {
+   "shot": 2,
+   "start": 1.2,
+   "end": 1.8,
+   "texts": [
+    {
+     "start": 1.2,
+     "end": 1.7999999999999998,
+     "text": "はい"
+    }
+   ]
+  },
+  {
+   "shot": 3,
+   "start": 1.8,
+   "end": 4.2,
+   "texts": [
+    {
+     "start": 2.2,
+     "end": 3.2,
+     "text": "S\n・・・"
+    },
+    {
+     "start": 3.2,
+     "end": 4.0,
+     "text": "S　O\nーーー"
+    },
+    {
+     "start": 4.0,
+     "end": 4.2,
+     "text": "S　O　S\n・・・"
+    }
+   ]
+  },
+  {
+   "shot": 4,
+   "start": 4.2,
+   "end": 5.0,
+   "texts": [
+    {
+     "start": 4.2,
+     "end": 4.9,
+     "text": "SOS!?"
+    }
+   ]
+  },
+  {
+   "shot": 5,
+   "start": 5.0,
+   "end": 5.6,
+   "texts": [
+    {
+     "start": 5.0,
+     "end": 5.4,
+     "text": "D\nー・・"
+    },
+    {
+     "start": 5.4,
+     "end": 5.6,
+     "text": "D　A\n・ー"
+    }
+   ]
+  },
+  {
+   "shot": 6,
+   "start": 5.6,
+   "end": 7.6,
+   "texts": [
+    {
+     "start": 5.6,
+     "end": 6.0,
+     "text": "D　A\n・ー"
+    },
+    {
+     "start": 6.0,
+     "end": 6.8,
+     "text": "D　A　N\nー・"
+    },
+    {
+     "start": 6.8,
+     "end": 7.199999999999999,
+     "text": "D　A　N　G\nーー・"
+    },
+    {
+     "start": 7.199999999999999,
+     "end": 7.6,
+     "text": "D　A　N　G　E\n・"
+    }
+   ]
+  },
+  {
+   "shot": 7,
+   "start": 7.6,
+   "end": 8.2,
+   "texts": [
+    {
+     "start": 7.6,
+     "end": 8.2,
+     "text": "DANGER!?"
+    }
+   ]
+  },
+  {
+   "shot": 8,
+   "start": 8.2,
+   "end": 9.0,
+   "texts": [
+    {
+     "start": 8.2,
+     "end": 9.0,
+     "text": "お疲れ様でした"
+    }
+   ]
+  },
+  {
+   "shot": 9,
+   "start": 9.0,
+   "end": 9.6,
+   "texts": [
+    {
+     "start": 9.0,
+     "end": 9.6,
+     "text": "大丈夫ですか!?"
+    }
+   ]
+  },
+  {
+   "shot": 10,
+   "start": 9.6,
+   "end": 10.8,
+   "texts": [
+    {
+     "start": 9.719999999999999,
+     "end": 10.799999999999999,
+     "text": "耳の方全然\n問題なかったですよ"
+    }
+   ]
+  },
+  {
+   "shot": 11,
+   "start": 10.8,
+   "end": 12.19,
+   "texts": [
+    {
+     "start": 10.8,
+     "end": 12.190000000000001,
+     "text": "(たすけて)"
+    }
+   ]
+  }
+ ]
+}

@@ -138,17 +138,23 @@ let askDel = null;
 
 // 元ネタ（YouTube の埋め込み）を、今の版と同じ秒・同じ速さで動かす。音は今の版だけ。
 // 元ネタの動画はこちらに置かず、YouTube から再生する（よそのチャンネルの動画を公開の場所に置き直さないため・2026-10-16）
-let yt = null, ytReady = false, useSrc = false;
+let yt = null, ytReady = false, useSrc = false, lastSeek = 0;
 const ytId = u => (String(u || '').match(/(?:shorts\/|youtu\.be\/|[?&]v=|embed\/)([\w-]{11})/) || [])[1] || '';
+// 再生中は、1秒より大きくずれたときだけ、2秒に1回まで合わせ直す。読み込み中（グルグル）の間は触らない。
+// スマホは元ネタの読み込みが遅れやすく、細かく飛ばし直すと読み込み直しが続いてカクついた（2026-10-16）
 function follow(force) {
   if (!useSrc || !ytReady) return;
   try {
-    yt.mute();
+    const st = yt.getPlayerState(), now = performance.now();
+    if (v.paused) {
+      if (st === 1 || st === 3) yt.pauseVideo();
+      if (force || Math.abs(yt.getCurrentTime() - v.currentTime) > 0.15) yt.seekTo(v.currentTime, true);
+      return;
+    }
     if (yt.getPlaybackRate() !== v.playbackRate) yt.setPlaybackRate(v.playbackRate);
-    if (force || Math.abs(yt.getCurrentTime() - v.currentTime) > 0.3) yt.seekTo(v.currentTime, true);
-    const st = yt.getPlayerState();
-    if (v.paused && st === 1) yt.pauseVideo();
-    if (!v.paused && st !== 1 && st !== 3 && v.currentTime < (yt.getDuration() || 1e9)) yt.playVideo();
+    const off = Math.abs(yt.getCurrentTime() - v.currentTime);
+    if (force || (st !== 3 && off > 1 && now - lastSeek > 2000)) { yt.seekTo(v.currentTime, true); lastSeek = now; }
+    if (st !== 1 && st !== 3 && v.currentTime < (yt.getDuration() || 1e9)) yt.playVideo();
   } catch (e) {}
 }
 function setSrc(on) { useSrc = on; $('stage').classList.toggle('two', on); $('srcbtn').classList.toggle('on', on); if (on) follow(true); else if (ytReady) try { yt.pauseVideo(); } catch (e) {} }
@@ -158,6 +164,8 @@ function loadYt(id) {
       playerVars: { mute: 1, controls: 0, playsinline: 1, rel: 0, modestbranding: 1, disablekb: 1, fs: 0 },
       events: {
         onReady: () => { ytReady = true; yt.mute(); follow(true); },
+        // YouTube は、まだ再生していない動画の秒を動かすと勝手に再生し始めるので、今の版が止まっていれば止め直す
+        onStateChange: e => { if (e.data === 1 && v.paused) { yt.pauseVideo(); yt.seekTo(v.currentTime, true); } },
         onError: () => { setSrc(false); $('srcbtn').hidden = true; } // 埋め込みできない動画は、上のリンクだけにする
       } });
   };
@@ -169,7 +177,7 @@ $('srcbtn').onclick = () => setSrc(!useSrc);
 v.addEventListener('play', () => { $('play').textContent = '❚❚ 止める'; follow(true); });
 v.addEventListener('pause', () => { $('play').textContent = '▶ 再生'; follow(true); });
 v.addEventListener('seeked', () => { follow(true); renderNow(); });
-v.addEventListener('ratechange', () => follow(false));
+v.addEventListener('ratechange', () => follow(true));
 v.addEventListener('timeupdate', () => { follow(false); renderNow(); });
 v.addEventListener('loadedmetadata', () => { renderTrack(); renderNow(); });
 v.addEventListener('error', () => { $('msg').textContent = '動画を読み込めませんでした。ページを開き直してください'; $('msg').className = 'msg err'; });

@@ -30,8 +30,16 @@ header h1 i { width: 10px; height: 10px; border-radius: 50%; background: var(--a
 main { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 900px) { main { grid-template-columns: minmax(0, 1fr) 380px; } }
 .left, .right { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.stage { background: var(--stage); border-radius: 12px; padding: 10px; display: flex; justify-content: center; }
-.stage video { display: block; height: min(62vh, 640px); max-width: 100%; aspect-ratio: 9 / 16; background: #000; border-radius: 8px; object-fit: contain; }
+.stage { background: var(--stage); border-radius: 12px; padding: 10px; display: flex; justify-content: center; gap: 10px; }
+.stage .col { display: flex; flex-direction: column; gap: 6px; align-items: center; min-width: 0; flex: 0 1 auto; }
+.stage .lab { color: #cfd3dc; font-size: 12px; font-weight: 700; text-align: center; }
+.stage .lab span { font-weight: 400; }
+.stage video, .stage .yt { display: block; height: min(62vh, 640px); max-width: 100%; aspect-ratio: 9 / 16; background: #000; border-radius: 8px; object-fit: contain; overflow: hidden; }
+.stage .yt iframe { width: 100%; height: 100%; border: 0; display: block; }
+.stage.two .col { flex: 1 1 0; }
+.stage.two video, .stage.two .yt { height: auto; width: 100%; max-height: min(62vh, 640px); }
+.stage:not(.two) .col.src { display: none; }
+.bar button.on { background: var(--ink); color: var(--panel); border-color: var(--ink); }
 .track { position: relative; height: 30px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; touch-action: none; cursor: pointer; }
 .track .shot { position: absolute; top: 0; bottom: 0; border-right: 1px solid var(--line); }
 .track .shot:nth-child(odd) { background: var(--soft); }
@@ -85,12 +93,16 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--reply-line); ou
 
 <main id="app" hidden>
   <div class="left">
-    <div class="stage"><video id="v" controls playsinline preload="metadata"></video></div>
+    <div class="stage" id="stage">
+      <div class="col src"><div class="lab">元ネタ <span>音なし・一緒に動きます</span></div><div class="yt"><div id="yt"></div></div></div>
+      <div class="col mine"><div class="lab" id="minelab">今の版</div><video id="v" controls playsinline preload="metadata"></video></div>
+    </div>
     <div class="track" id="track" title="ショットの区切り。オレンジはコメントのある所。押すとそこへ飛びます"><div class="head" id="head"></div></div>
     <div class="bar">
       <button class="play" id="play">▶ 再生</button>
       <button id="back">−1秒</button><button id="fwd">＋1秒</button>
       <button id="prevShot">前のショット</button><button id="nextShot">次のショット</button>
+      <button id="srcbtn" hidden>元ネタを並べる</button>
       <span class="time" id="time"></span>
     </div>
   </div>
@@ -124,10 +136,41 @@ const ownOf = id => owns()[`${KEY}|${id}`] || '';
 const setOwn = (id, x) => { const o = owns(); if (x) o[`${KEY}|${id}`] = x; else delete o[`${KEY}|${id}`]; store.set('remix-tensaku-own', JSON.stringify(o)); };
 let askDel = null;
 
-v.addEventListener('play', () => { $('play').textContent = '❚❚ 止める'; });
-v.addEventListener('pause', () => { $('play').textContent = '▶ 再生'; });
-v.addEventListener('seeked', renderNow);
-v.addEventListener('timeupdate', renderNow);
+// 元ネタ（YouTube の埋め込み）を、今の版と同じ秒・同じ速さで動かす。音は今の版だけ。
+// 元ネタの動画はこちらに置かず、YouTube から再生する（よそのチャンネルの動画を公開の場所に置き直さないため・2026-10-16）
+let yt = null, ytReady = false, useSrc = false;
+const ytId = u => (String(u || '').match(/(?:shorts\/|youtu\.be\/|[?&]v=|embed\/)([\w-]{11})/) || [])[1] || '';
+function follow(force) {
+  if (!useSrc || !ytReady) return;
+  try {
+    yt.mute();
+    if (yt.getPlaybackRate() !== v.playbackRate) yt.setPlaybackRate(v.playbackRate);
+    if (force || Math.abs(yt.getCurrentTime() - v.currentTime) > 0.3) yt.seekTo(v.currentTime, true);
+    const st = yt.getPlayerState();
+    if (v.paused && st === 1) yt.pauseVideo();
+    if (!v.paused && st !== 1 && st !== 3 && v.currentTime < (yt.getDuration() || 1e9)) yt.playVideo();
+  } catch (e) {}
+}
+function setSrc(on) { useSrc = on; $('stage').classList.toggle('two', on); $('srcbtn').classList.toggle('on', on); if (on) follow(true); else if (ytReady) try { yt.pauseVideo(); } catch (e) {} }
+function loadYt(id) {
+  window.onYouTubeIframeAPIReady = () => {
+    yt = new YT.Player('yt', { videoId: id, width: '100%', height: '100%',
+      playerVars: { mute: 1, controls: 0, playsinline: 1, rel: 0, modestbranding: 1, disablekb: 1, fs: 0 },
+      events: {
+        onReady: () => { ytReady = true; yt.mute(); follow(true); },
+        onError: () => { setSrc(false); $('srcbtn').hidden = true; } // 埋め込みできない動画は、上のリンクだけにする
+      } });
+  };
+  const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(sc);
+  $('srcbtn').hidden = false; setSrc(true);
+}
+$('srcbtn').onclick = () => setSrc(!useSrc);
+
+v.addEventListener('play', () => { $('play').textContent = '❚❚ 止める'; follow(true); });
+v.addEventListener('pause', () => { $('play').textContent = '▶ 再生'; follow(true); });
+v.addEventListener('seeked', () => { follow(true); renderNow(); });
+v.addEventListener('ratechange', () => follow(false));
+v.addEventListener('timeupdate', () => { follow(false); renderNow(); });
 v.addEventListener('loadedmetadata', () => { renderTrack(); renderNow(); });
 v.addEventListener('error', () => { $('msg').textContent = '動画を読み込めませんでした。ページを開き直してください'; $('msg').className = 'msg err'; });
 
@@ -223,6 +266,8 @@ $('save').onclick = async () => {
   $('no').textContent = `№${V.no}`; $('ban').textContent = `v${V.ban}`; $('no').hidden = $('ban').hidden = false;
   $('vtitle').textContent = V.title || '';
   document.title = `№${V.no} v${V.ban} リミックス 添削ツール`;
+  $('minelab').textContent = `今の版（v${V.ban}）`;
+  if (ytId(V.srcUrl)) loadYt(ytId(V.srcUrl));
   if (V.srcUrl) $('links').innerHTML = `<a href="${esc(V.srcUrl)}" target="_blank" rel="noopener">元ネタを YouTube で見る ↗</a>`;
   // 動画はページと同じ場所の videos/〔動画〕.mp4 を使う（無ければドライブから。ドライブは一部のブラウザで読み込みが止まった・2026-10-13）
   v.src = V.file ? `videos/${encodeURIComponent(V.file)}` : `https://drive.usercontent.google.com/download?id=${encodeURIComponent(V.driveId)}&export=download`;

@@ -66,6 +66,10 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent); }
 .c .reply { margin-top: 6px; padding: 6px 8px; background: var(--reply); border-left: 3px solid var(--reply-line); border-radius: 4px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .c .reply b { color: var(--reply-line); }
 .c.empty { color: var(--sub); cursor: default; }
+.c .x { margin-left: auto; font: inherit; font-size: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--sub); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+.c .confirm { margin-top: 6px; display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.c .confirm button { font: inherit; font-size: 13px; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+.c .confirm button.del { background: #c62828; border-color: #c62828; color: #fff; }
 .state { padding: 24px 0; color: var(--sub); }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--reply-line); outline-offset: 2px; }
 </style>
@@ -114,6 +118,11 @@ const shotAt = t => { let r = V.shots[0]; for (const x of V.shots) { if (x.start
 const shown = (sh, t) => sh.texts.filter(b => b.start <= t + 0.001 && t < b.end + 0.001);
 const dur = () => v.duration || V?.duration || 0;
 const store = { get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set(k, x) { try { localStorage.setItem(k, x); } catch (e) {} } };
+// 自分が書いたコメントを消すための合言葉（保存したときに受け口から届く）。このブラウザにだけ覚えておく。
+const owns = () => { try { return JSON.parse(store.get('remix-tensaku-own') || '{}'); } catch (e) { return {}; } };
+const ownOf = id => owns()[`${KEY}|${id}`] || '';
+const setOwn = (id, x) => { const o = owns(); if (x) o[`${KEY}|${id}`] = x; else delete o[`${KEY}|${id}`]; store.set('remix-tensaku-own', JSON.stringify(o)); };
+let askDel = null;
 
 v.addEventListener('play', () => { $('play').textContent = '❚❚ 止める'; });
 v.addEventListener('pause', () => { $('play').textContent = '▶ 再生'; });
@@ -141,8 +150,9 @@ function renderList() {
   $('listTitle').textContent = `コメント ${comments.length}件`;
   $('cs').innerHTML = comments.length ? comments.map(c => `
     <div class="c" data-t="${c.time}">
-      <div class="meta"><span class="t">${fmt(c.time)}</span><span>ショット ${esc(c.shot)}</span>${c.name ? `<span>${esc(c.name)}</span>` : ''}<span>${esc(c.texts)}</span></div>
+      <div class="meta"><span class="t">${fmt(c.time)}</span><span>ショット ${esc(c.shot)}</span>${c.name ? `<span>${esc(c.name)}</span>` : ''}<span>${esc(c.texts)}</span>${ownOf(c.id) ? `<button class="x" data-del="${esc(c.id)}">消す</button>` : ''}</div>
       <div class="body">${esc(c.comment)}</div>
+      ${askDel === c.id ? `<div class="confirm">このコメントを消しますか？<button class="del" data-yes="${esc(c.id)}">消す</button><button data-no="1">やめる</button></div>` : ''}
       ${c.reply ? `<div class="reply"><b>AIの返事：</b>${esc(c.reply)}</div>` : ''}
     </div>`).join('') : '<div class="c empty">まだコメントはありません。動画を止めて、上の欄に書いてください。</div>';
   renderTrack();
@@ -166,6 +176,22 @@ $('fwd').onclick = () => { v.currentTime = Math.min(dur(), v.currentTime + 1); }
 const jumpShot = dir => { const i = V.shots.indexOf(shotAt(v.currentTime)); v.pause(); v.currentTime = V.shots[Math.min(V.shots.length - 1, Math.max(0, i + dir))].start + 0.01; };
 $('prevShot').onclick = () => jumpShot(-1); $('nextShot').onclick = () => jumpShot(1);
 $('reload').onclick = loadComments;
+$('cs').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  e.stopPropagation();
+  if (b.dataset.del) { askDel = b.dataset.del; renderList(); return; }
+  if (b.dataset.no) { askDel = null; renderList(); return; }
+  if (b.dataset.yes) {
+    const id = b.dataset.yes; b.disabled = true;
+    try {
+      const r = await (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ mine: 'delete', video: KEY, id, own: ownOf(id) }) })).json();
+      if (!r.ok) throw new Error(r.error || '');
+      setOwn(id, ''); askDel = null; comments = r.comments; renderList();
+      $('msg').className = 'msg'; $('msg').textContent = 'コメントを消しました';
+    } catch (err) { askDel = null; renderList(); $('msg').className = 'msg err'; $('msg').textContent = '消せませんでした。電波を確かめて、もう一度押してください'; }
+  }
+}, true);
 $('cs').addEventListener('click', e => { const c = e.target.closest('.c'); if (!c || !c.dataset.t) return; v.pause(); v.currentTime = +c.dataset.t; window.scrollTo({ top: 0, behavior: 'smooth' }); });
 $('name').addEventListener('change', () => store.set('remix-tensaku-name', $('name').value.trim()));
 
@@ -180,6 +206,7 @@ $('save').onclick = async () => {
     const r = await (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ video: KEY, time: t, shot: sh.shot, texts: bs.map(b => b.text).join(' / '), comment: text, name }) })).json();
     if (!r.ok) throw new Error(r.error || '');
+    if (r.id && r.own) setOwn(r.id, r.own);
     comments = r.comments; renderList();
     inp.value = ''; $('msg').textContent = `保存しました（${fmt(t)}・ショット${sh.shot}）`;
   } catch (e) {

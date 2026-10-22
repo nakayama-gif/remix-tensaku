@@ -1,0 +1,114 @@
+{
+ "no": "111",
+ "ban": "1",
+ "title": "殺気送ったれ！",
+ "duration": 14.55,
+ "srcUrl": "https://www.youtube.com/watch?v=vAKb48qmgJI",
+ "srcTitle": "殺気送ったれ！",
+ "driveId": "",
+ "file": "111_v1.mp4",
+ "shots": [
+  {
+   "shot": 1,
+   "start": 0.0,
+   "end": 2.0,
+   "texts": [
+    {
+     "start": 0.0,
+     "end": 2.0,
+     "text": "隣の会社も\n残業してるね"
+    }
+   ]
+  },
+  {
+   "shot": 2,
+   "start": 2.0,
+   "end": 3.35,
+   "texts": [
+    {
+     "start": 2.0,
+     "end": 3.35,
+     "text": "本当だ〜"
+    }
+   ]
+  },
+  {
+   "shot": 3,
+   "start": 3.35,
+   "end": 5.2,
+   "texts": [
+    {
+     "start": 3.35,
+     "end": 5.2,
+     "text": "こっちに\n気づかないね〜"
+    }
+   ]
+  },
+  {
+   "shot": 4,
+   "start": 5.2,
+   "end": 6.7,
+   "texts": [
+    {
+     "start": 5.2,
+     "end": 6.7,
+     "text": "つまんな〜い"
+    }
+   ]
+  },
+  {
+   "shot": 5,
+   "start": 6.7,
+   "end": 8.22,
+   "texts": [
+    {
+     "start": 6.7,
+     "end": 8.22,
+     "text": "殺気送ったれ\n殺気!!"
+    }
+   ]
+  },
+  {
+   "shot": 6,
+   "start": 8.22,
+   "end": 9.9,
+   "texts": [
+    {
+     "start": 8.22,
+     "end": 9.200000000000001,
+     "text": "はい!!"
+    }
+   ]
+  },
+  {
+   "shot": 7,
+   "start": 9.9,
+   "end": 10.5,
+   "texts": []
+  },
+  {
+   "shot": 8,
+   "start": 10.5,
+   "end": 12.0,
+   "texts": [
+    {
+     "start": 10.5,
+     "end": 12.0,
+     "text": "あっ!!\n武装した!!"
+    }
+   ]
+  },
+  {
+   "shot": 9,
+   "start": 12.0,
+   "end": 14.55,
+   "texts": [
+    {
+     "start": 12.0,
+     "end": 14.55,
+     "text": "あははは!!"
+    }
+   ]
+  }
+ ]
+}

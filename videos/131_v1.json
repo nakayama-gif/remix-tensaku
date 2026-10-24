@@ -1,0 +1,133 @@
+{
+ "no": "131",
+ "ban": "1",
+ "title": "回線が悪いと戦闘になる人",
+ "duration": 19.2,
+ "srcUrl": "https://www.youtube.com/watch?v=ldkOCSQtbyU",
+ "srcTitle": "回線が悪いと戦闘になる人",
+ "driveId": "",
+ "file": "131_v1.mp4",
+ "shots": [
+  {
+   "shot": 1,
+   "start": 0.0,
+   "end": 2.4,
+   "texts": [
+    {
+     "start": 0.0,
+     "end": 1.12,
+     "text": "いやぁ、\n今日の昼は"
+    },
+    {
+     "start": 1.12,
+     "end": 2.4,
+     "text": "ラーメンを\n食いたいなぁ"
+    }
+   ]
+  },
+  {
+   "shot": 2,
+   "start": 2.4,
+   "end": 3.14,
+   "texts": [
+    {
+     "start": 2.4,
+     "end": 3.1399999999999997,
+     "text": "えぇ、なんて?"
+    }
+   ]
+  },
+  {
+   "shot": 3,
+   "start": 3.14,
+   "end": 5.4,
+   "texts": [
+    {
+     "start": 3.14,
+     "end": 4.18,
+     "text": "えぇ、俺、"
+    },
+    {
+     "start": 4.18,
+     "end": 5.4,
+     "text": "ラグいかも\nしれへん"
+    }
+   ]
+  },
+  {
+   "shot": 4,
+   "start": 5.4,
+   "end": 6.7,
+   "texts": [
+    {
+     "start": 5.4,
+     "end": 6.7,
+     "text": "もう一回言うわ"
+    }
+   ]
+  },
+  {
+   "shot": 5,
+   "start": 6.7,
+   "end": 8.0,
+   "texts": [
+    {
+     "start": 6.7,
+     "end": 7.48,
+     "text": "今日の昼、"
+    },
+    {
+     "start": 7.48,
+     "end": 7.58,
+     "text": "今日の昼、\nラ…"
+    },
+    {
+     "start": 7.58,
+     "end": 7.82,
+     "text": "今日の昼、\nラ…バ…"
+    },
+    {
+     "start": 7.82,
+     "end": 8.0,
+     "text": "今日の昼、\nラ…バ…ラ…"
+    }
+   ]
+  },
+  {
+   "shot": 6,
+   "start": 8.0,
+   "end": 9.2,
+   "texts": [
+    {
+     "start": 8.0,
+     "end": 9.2,
+     "text": "殺す"
+    }
+   ]
+  },
+  {
+   "shot": 7,
+   "start": 9.2,
+   "end": 12.6,
+   "texts": [
+    {
+     "start": 9.2,
+     "end": 12.6,
+     "text": "殺す"
+    }
+   ]
+  },
+  {
+   "shot": 8,
+   "start": 12.6,
+   "end": 19.2,
+   "texts": [
+    {
+     "start": 12.9,
+     "end": 19.2,
+     "text": "友人があらわれた！"
+    }
+   ]
+  }
+ ]
+}
